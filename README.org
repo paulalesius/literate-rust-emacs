@@ -191,12 +191,12 @@ Configure C-k to be a prefix key
 
 ** Miscellaneous
 *** org-make-toc.el
-For a table of contents in the github README.
+For a table of contents in the github README. Org mode is already loaded through (org-babble-load-file "README.org") by init.el, this means that we need to use the provided version of org mode or there will be a version mismatch.
 #+BEGIN_SRC emacs-lisp
 (use-package org
   :straight (:type built-in))
 (use-package org-make-toc
   :after org
   ;; Don't use straight, to use the built-in org mode otherwise straight will attempt to load a more recent org mode
-  :hook (org-mode-hook #'org-mode-toc-mode))
+  :hook (org-mode . #'org-mode-toc-mode))
 #+END_SRC
