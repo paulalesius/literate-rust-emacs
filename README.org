@@ -6,9 +6,9 @@
 :PROPERTIES:
 :TOC:   :include all
 :END:
-This is my personal literate emacs configuration which aims to become a dank Rust IDE configuration. This is my first attempt at creating an Emacs configuration form scratch so it will take some time to discover the right configuration for effective Rust development.
+This is my personal literate emacs configuration which aims to become a dank Rust IDE configuration. This is my first attempt at creating an Emacs configuration form scratch.
 
-It aims to use they emacs keybindings style, with keymaps designed for aesthetics.
+It aims to use they emacs keybindings style, with keymaps designed for aesthetics, and try to use the best parts from other great distributions such as Doom Emacs and Spacemacs.
 
 :CONTENTS:
 - [[#introduction][Introduction]]
@@ -25,6 +25,7 @@ It aims to use they emacs keybindings style, with keymaps designed for aesthetic
   - [[#remove-the-menu-bar-from-the-top-of-emacs][Remove the menu bar from the top of emacs]]
   - [[#helpful-for-visibility-into-variables-and-function-documentations][Helpful for visibility into variables and function documentations]]
   - [[#linum-relativeel][linum-relative.el]]
+  - [[#consultel][consult.el]]
   - [[#key-bindings][Key bindings]]
     - [[#configure-the-buffers-keymap][Configure the buffers-keymap]]
   - [[#miscellaneous][Miscellaneous]]
@@ -182,6 +183,26 @@ Relative line numbers don't seem to work at present, fix.
   )
 #+END_SRC
 
+** consult.el
+This is used for searching?
+#+BEGIN_SRC emacs-lisp
+(use-package consult
+  ;; :bind (("C-s" . consult-line)
+  ;;        ("C-x b" . consult-buffer)
+  ;;        ("M-y" . consult-yank-pop)
+  ;;        :map vertico-map
+  ;;        ("/" . consult-line))
+  :custom
+  ;;(consult-preview-key nil)
+  (consult-project-root-function #'projectile-project-root)
+  (consult-find-command 'rg)
+  (consult-line-point-placement 'word-begin)
+  (xref-show-xrefs-function #'consul-xref)
+  (xref-show-definitions-function #'consul-xref)
+  (xref-prompt-for-identifier
+   '(not xref-find-definitions xref-find-definitions-other-window xref-find-references)))
+#+END_SRC
+
 ** Key bindings
 Configure C-k to be a prefix key
 #+BEGIN_SRC emacs-lisp
@@ -200,7 +221,9 @@ Configure C-k to be a prefix key
   :straight (:type built-in)
   :after bind-key
   :bind (:map buffers-keymap
-              ("k" . kill-current-buffer)))
+              ("k" . kill-current-buffer)
+              ("b" . consult-buffer)
+              ("s" . consult-line)))
 #+END_SRC
 
 ** Miscellaneous
