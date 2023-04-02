@@ -184,9 +184,10 @@ Relative line numbers don't seem to work at present, fix.
 #+END_SRC
 
 ** consult.el
-This is used for searching?
+This is used for searching
 #+BEGIN_SRC emacs-lisp
 (use-package consult
+  :after projectile
   ;; :bind (("C-s" . consult-line)
   ;;        ("C-x b" . consult-buffer)
   ;;        ("M-y" . consult-yank-pop)
@@ -196,11 +197,20 @@ This is used for searching?
   ;;(consult-preview-key nil)
   (consult-project-root-function #'projectile-project-root)
   (consult-find-command 'rg)
-  (consult-line-point-placement 'word-begin)
+  (consult-line-point-placement #'word-begin)
+  ;; Integrate with vertico
+  (consult-project-root-function #'projectile-project-root)
+  ;; Determine what these are for and if they will be needed
   (xref-show-xrefs-function #'consul-xref)
   (xref-show-definitions-function #'consul-xref)
   (xref-prompt-for-identifier
    '(not xref-find-definitions xref-find-definitions-other-window xref-find-references)))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+;; Provides consult-projectile-find-file
+(use-package consult-projectile
+  :after consult)
 #+END_SRC
 
 ** Key bindings
@@ -223,7 +233,8 @@ Configure C-k to be a prefix key
   :bind (:map buffers-keymap
               ("k" . kill-current-buffer)
               ("b" . consult-buffer)
-              ("s" . consult-line)))
+              ("s" . consult-line)
+              ("p" . consult-projectile-find-file)))
 #+END_SRC
 
 ** Miscellaneous
