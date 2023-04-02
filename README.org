@@ -24,6 +24,7 @@ It aims to use they emacs keybindings style, with keymaps designed for aesthetic
   - [[#which-key][which-key]]
   - [[#remove-the-menu-bar-from-the-top-of-emacs][Remove the menu bar from the top of emacs]]
   - [[#helpful-for-visibility-into-variables-and-function-documentations][Helpful for visibility into variables and function documentations]]
+  - [[#linum-relativeel][linum-relative.el]]
   - [[#key-bindings][Key bindings]]
     - [[#configure-the-buffers-keymap][Configure the buffers-keymap]]
   - [[#miscellaneous][Miscellaneous]]
@@ -168,6 +169,19 @@ For observability into key combinations
          ("C-h k" . #'helpful-key)))
 #+END_SRC
 
+** linum-relative.el
+Relative line numbers don't seem to work at present, fix.
+#+BEGIN_SRC emacs-lisp
+(use-package display-line-numbers
+  :straight nil
+  :custom
+  (display-line-numbers-type 'relative)
+  (display-line-numbers 't)
+  :init
+  (display-line-numbers-mode)
+  )
+#+END_SRC
+
 ** Key bindings
 Configure C-k to be a prefix key
 #+BEGIN_SRC emacs-lisp
@@ -194,7 +208,9 @@ Configure C-k to be a prefix key
 For a table of contents in the github README. Org mode is already loaded through (org-babble-load-file "README.org") by init.el, this means that we need to use the provided version of org mode or there will be a version mismatch.
 #+BEGIN_SRC emacs-lisp
 (use-package org
-  :straight (:type built-in))
+  :straight (:type built-in)
+  :custom
+  (org-startup-indented t))
 (use-package org-make-toc
   :after org
   ;; Don't use straight, to use the built-in org mode otherwise straight will attempt to load a more recent org mode
