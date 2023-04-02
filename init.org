@@ -1,0 +1,144 @@
+#+TITLE: Literate Emacs Configuration
+#+AUTHOR: Paul Alesius
+#+DATE: <2023-04-02 Sun>
+
+* Introduction
+This is my personal literate emacs configuration which aims to become a dank Rust IDE configuration. This is my first attempt at creating an Emacs configuration form scratch so it will take some time to discover the right configuration for effective Rust development.
+
+** Configure straight.el to use use-package
+Use use-package which is more asthetic.
+
+#+BEGIN_SRC emacs-lisp
+;;
+;; Install straight-use-package
+;;
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+(straight-use-package '(use-package :ensure t))
+(setq straight-use-package-by-default t
+      use-package-always-ensure t)
+#+END_SRC
+
+** Doom Emacs theme
+#+BEGIN_SRC emacs-lisp
+(use-package doom-themes
+  :config
+  (load-theme 'doom-one t))
+#+END_SRC
+
+** Doom Emacs modeline
+#+BEGIN_SRC emacs-lisp
+(use-package doom-modeline
+  :hook (after-init . doom-modeline-mode)
+  :config
+  (display-battery-mode 1))
+#+END_SRC
+
+** Projectile
+Project management
+#+BEGIN_SRC emacs-lisp
+(use-package projectile
+  :config
+  (setq projectile-mode-line-prefix " Proj "
+        projectile-project-search-path '("/storage/src/unnsvc")
+        projectile-globally-ignored-file-suffixes '(".log" ".gz" ".zip")
+        projectile-enable-caching t
+        projectile-completion-system 'default
+        projectile-switch-project-action 'projectile-dired)
+  (projectile-mode +1))
+#+END_SRC
+
+** Dashboard
+To be presented with basic information when starting Emacs.
+#+BEGIN_SRC emacs-lisp
+(use-package dashboard
+  :config
+  (setq dashboard-banner-logo-title "Welcome to Rust Emacs"
+        dashboard-items '((recents . 5)
+                          (projects . 5)
+                          (bookmarks . 5)
+                          (agenda . 5)
+                          (registers . 5))
+        dashboard-footer-message '("Happy hacking!")
+        dashboard-set-heading-icons t
+        dashboard-set-file-icons t
+        dashboard-center-content t)
+  (dashboard-setup-startup-hook))
+#+END_SRC
+
+** Orderless
+Enable fuzzy matching and searching of terms in any order as you type them
+#+BEGIN_SRC emacs-lisp
+(use-package orderless)
+#+END_SRC
+
+** Vertico
+#+BEGIN_SRC emacs-lisp
+(use-package vertico
+  :init
+  (vertico-mode)
+  :custom
+  (vertico-reverse-list nil)
+  (vertico-cycle t)
+  (vertico-count 100)
+  (vertico-resize nil)
+  (vertico-history nil))
+#+END_SRC
+
+** Minibuffer to use orderless and vertico
+Minibuffer is a built-in package so :straight nil otherwise it will try to pull minibuffer.el from repos.
+#+BEGIN_SRC emacs-lisp
+(use-package minibuffer
+  :straight nil
+  :after (orderless vertico)
+  :custom
+  (completion-styles '(orderless))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles . (partial-completion))))))
+#+END_SRC
+
+** Persistent history
+Enable persistent history?
+#+BEGIN_SRC emacs-lisp
+(use-package savehist
+  :straight nil
+  :config
+  ;;(setq savehist-additional-variables '(vertico-sort-function
+  ;;                                      vertico-recency-type))
+  (savehist-mode 1))
+#+END_SRC
+
+** which-key
+For observability into key combinations
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :config
+  (which-key-mode))
+#+END_SRC
+
+** Remove the menu bar from the top of emacs
+#+BEGIN_SRC emacs-lisp
+(use-package menu-bar
+  :straight nil
+  :config
+  (menu-bar-mode -1))
+#+END_SRC
+
+** Helpful for visibility into variables and function documentations
+#+BEGIN_SRC emacs-lisp
+(use-package helpful
+  :bind (("C-h f" . #'helpful-callable)
+         ("C-h v" . #'helpful-variable)
+         ("C-h k" . #'helpful-key)))
+#+END_SRC
