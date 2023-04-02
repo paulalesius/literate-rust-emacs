@@ -3,6 +3,9 @@
 #+DATE: <2023-04-02 Sun>
 
 * Introduction
+:PROPERTIES:
+:TOC:   :include all
+:END:
 This is my personal literate emacs configuration which aims to become a dank Rust IDE configuration. This is my first attempt at creating an Emacs configuration form scratch so it will take some time to discover the right configuration for effective Rust development.
 
 It aims to use they emacs keybindings style, with keymaps designed for aesthetics.
@@ -164,4 +167,15 @@ Configure C-k to be a prefix key
   :after bind-key
   :bind (:map buffers-keymap
               ("k" . kill-current-buffer)))
+#+END_SRC
+
+** Miscellaneous
+*** org-make-toc.el
+For a table of contents in the github README.
+#+BEGIN_SRC emacs-lisp
+(use-package org)
+(use-package org-make-toc
+  :after org
+  ;; Don't use straight, to use the built-in org mode otherwise straight will attempt to load a more recent org mode
+  :hook (org-mode-hook #'org-mode-toc-mode))
 #+END_SRC
