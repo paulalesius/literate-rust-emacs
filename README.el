@@ -91,3 +91,25 @@
   :bind (("C-h f" . #'helpful-callable)
          ("C-h v" . #'helpful-variable)
          ("C-h k" . #'helpful-key)))
+
+;; (use-package bind-key
+;;   :after simple
+;;   :config
+;;   ;; Define "buffers-keymap" keymap as a variable
+;;   (defvar buffers-keymap (make-sparse-keymap)
+;;     "Keymap for buffer commands.")
+;;   ;; Define a key in the buffers-keymap
+;;   (define-key buffers-keymap (kbd "k") 'kill-current-buffer)
+;;   ;; Bind C-b prefix to the buffers-keymap
+;;   (bind-key "C-b" buffers-keymap))
+
+(use-package bind-key
+  :after simple
+  :config
+  (defvar buffers-keymap (make-sparse-keymap))
+  (bind-key "C-b" buffers-keymap))
+(use-package my-buffers
+  :straight nil
+  :after bind-key
+  :bind (:map buffers-keymap
+              ("k" . kill-current-buffer)))
