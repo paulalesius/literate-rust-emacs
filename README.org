@@ -21,6 +21,7 @@ This is my personal literate emacs configuration which aims to become a dank Rus
     - [[#verticoel][vertico.el]]
     - [[#linum-relativeel][linum-relative.el]]
     - [[#savehistel][savehist.el]]
+    - [[#magitel][magit.el]]
   - [[#observability-introspection-and-search][Observability, Introspection, and Search]]
     - [[#which-keyel][which-key.el]]
     - [[#consultel][consult.el]]
@@ -35,6 +36,7 @@ This is my personal literate emacs configuration which aims to become a dank Rus
   - [[#keymap][Keymap]]
     - [[#buffers-keymap][buffers-keymap]]
     - [[#search-keymap][search-keymap]]
+    - [[#git-keymap][git-keymap]]
   - [[#miscellaneous][Miscellaneous]]
     - [[#remove-the-menu-bar-from-the-top-of-emacs][Remove the menu bar from the top of emacs]]
     - [[#minibuffer-to-use-orderless-and-vertico][Minibuffer to use orderless and vertico]]
@@ -158,6 +160,11 @@ Enable persistent history?
   (savehist-mode 1))
 #+END_SRC
 
+*** magit.el
+#+BEGIN_SRC emacs-lisp
+(use-package magit)
+#+END_SRC
+
 ** Observability, Introspection, and Search
 *** which-key.el
 For observability into key combinations
@@ -246,14 +253,20 @@ Configure C-k to be a prefix key
 #+BEGIN_SRC emacs-lisp
 ;; Create a new keymap
 (use-package bind-key
-  :after simple
+  :after (simple magit)
   :config
+
   (defvar buffers-keymap (make-sparse-keymap))
   (unbind-key "C-b")
   (bind-key "C-b" buffers-keymap)
+
   (defvar search-keymap (make-sparse-keymap))
   (unbind-key "C-s")
-  (bind-key "C-s" search-keymap))
+  (bind-key "C-s" search-keymap)
+
+  (defvar git-keymap (make-sparse-keymap))
+  (unbind-key "C-g")
+  (bind-key "C-g" git-keymap))
 #+END_SRC
 
 *** buffers-keymap
@@ -278,6 +291,15 @@ Configure C-k to be a prefix key
               ("R" . consult-recent-file)
               ("r" . consult-ripgrep)
               ("p" . consult-projectile-find-file)))
+#+END_SRC
+
+*** git-keymap
+#+BEGIN_SRC emacs-lisp
+(use-package meta-git-keymap
+  :straight (:type built-in)
+  :after (bind-key magit)
+  :bind (:map git-keymap
+              ("g" . magit-status)))
 #+END_SRC
 
 ** Miscellaneous
