@@ -12,33 +12,33 @@ It aims to use they emacs keybindings style, with keymaps designed for aesthetic
 
 :CONTENTS:
 - [[#introduction][Introduction]]
-  - [[#configure-straightel-to-use-use-package][Configure straight.el to use use-package]]
-  - [[#doom-emacs-theme][Doom Emacs theme]]
-  - [[#doom-emacs-modeline][Doom Emacs modeline]]
-  - [[#projectile][Projectile]]
-  - [[#dashboard][Dashboard]]
-  - [[#orderless][Orderless]]
-  - [[#vertico][Vertico]]
-  - [[#minibuffer-to-use-orderless-and-vertico][Minibuffer to use orderless and vertico]]
-  - [[#persistent-history][Persistent history]]
-  - [[#which-key][which-key]]
-  - [[#remove-the-menu-bar-from-the-top-of-emacs][Remove the menu bar from the top of emacs]]
-  - [[#helpful-for-visibility-into-variables-and-function-documentations][Helpful for visibility into variables and function documentations]]
-  - [[#linum-relativeel][linum-relative.el]]
-  - [[#consultel][consult.el]]
-  - [[#key-bindings][Key bindings]]
-    - [[#configure-the-buffers-keymap][Configure the buffers-keymap]]
+  - [[#core][Core]]
+    - [[#bootstrap-straightel][Bootstrap straight.el]]
+      - [[#use-packageel][use-package.el]]
+    - [[#doom-oneel][doom-one.el]]
+    - [[#doom-modelineel][doom-modeline.el]]
+    - [[#dashboardel][dashboard.el]]
+    - [[#projectileel][projectile.el]]
+    - [[#orderlessel][orderless.el]]
+    - [[#verticoel][vertico.el]]
+    - [[#linum-relativeel][linum-relative.el]]
+    - [[#savehistel][savehist.el]]
+  - [[#observability-introspection-and-search][Observability, Introspection, and Search]]
+    - [[#which-keyel][which-key.el]]
+    - [[#consultel][consult.el]]
+    - [[#helpfulel][helpful.el]]
+  - [[#configure][Configure]]
+    - [[#remove-the-menu-bar-from-the-top-of-emacs][Remove the menu bar from the top of emacs]]
+    - [[#minibuffer-to-use-orderless-and-vertico][Minibuffer to use orderless and vertico]]
+  - [[#keymaps][Keymaps]]
+    - [[#buffers-keymap][buffers-keymap]]
   - [[#miscellaneous][Miscellaneous]]
     - [[#org-make-tocel][org-make-toc.el]]
 :END:
 
-** Configure straight.el to use use-package
-Use use-package which is more asthetic.
-
+** Core
+*** Bootstrap straight.el
 #+BEGIN_SRC emacs-lisp
-;;
-;; Install straight-use-package
-;;
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -51,20 +51,26 @@ Use use-package which is more asthetic.
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
+#+END_SRC
 
-(straight-use-package '(use-package :ensure t))
+**** use-package.el
+Use use-package for aesthetics, ensure that packages are installed automatically if not present in the system
+#+BEGIN_SRC emacs-lisp
+(straight-use-package '(use-package
+                         :ensure t))
+(require 'use-package-ensure)
 (setq straight-use-package-by-default t
       use-package-always-ensure t)
 #+END_SRC
 
-** Doom Emacs theme
+*** doom-one.el
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
   :config
   (load-theme 'doom-one t))
 #+END_SRC
 
-** Doom Emacs modeline
+*** doom-modeline.el
 #+BEGIN_SRC emacs-lisp
 (use-package doom-modeline
   :hook (after-init . doom-modeline-mode)
@@ -72,21 +78,7 @@ Use use-package which is more asthetic.
   (display-battery-mode 1))
 #+END_SRC
 
-** Projectile
-Project management
-#+BEGIN_SRC emacs-lisp
-(use-package projectile
-  :config
-  (setq projectile-mode-line-prefix " Proj "
-        projectile-project-search-path '("/storage/src/unnsvc")
-        projectile-globally-ignored-file-suffixes '(".log" ".gz" ".zip")
-        projectile-enable-caching t
-        projectile-completion-system 'default
-        projectile-switch-project-action 'projectile-dired)
-  (projectile-mode +1))
-#+END_SRC
-
-** Dashboard
+*** dashboard.el
 To be presented with basic information when starting Emacs.
 #+BEGIN_SRC emacs-lisp
 (use-package dashboard
@@ -104,13 +96,27 @@ To be presented with basic information when starting Emacs.
   (dashboard-setup-startup-hook))
 #+END_SRC
 
-** Orderless
+*** projectile.el
+Project management
+#+BEGIN_SRC emacs-lisp
+(use-package projectile
+  :config
+  (setq projectile-mode-line-prefix " Proj "
+        projectile-project-search-path '("/storage/src/unnsvc")
+        projectile-globally-ignored-file-suffixes '(".log" ".gz" ".zip")
+        projectile-enable-caching t
+        projectile-completion-system 'default
+        projectile-switch-project-action 'projectile-dired)
+  (projectile-mode +1))
+#+END_SRC
+
+*** orderless.el
 Enable fuzzy matching and searching of terms in any order as you type them
 #+BEGIN_SRC emacs-lisp
 (use-package orderless)
 #+END_SRC
 
-** Vertico
+*** vertico.el
 #+BEGIN_SRC emacs-lisp
 (use-package vertico
   :init
@@ -123,54 +129,7 @@ Enable fuzzy matching and searching of terms in any order as you type them
   (vertico-history nil))
 #+END_SRC
 
-** Minibuffer to use orderless and vertico
-Minibuffer is a built-in package so :straight nil otherwise it will try to pull minibuffer.el from repos.
-#+BEGIN_SRC emacs-lisp
-(use-package minibuffer
-  :straight (:type built-in)
-  :after (orderless vertico)
-  :custom
-  (completion-styles '(orderless))
-  (completion-category-defaults nil)
-  (completion-category-overrides '((file (styles . (partial-completion))))))
-#+END_SRC
-
-** Persistent history
-Enable persistent history?
-#+BEGIN_SRC emacs-lisp
-(use-package savehist
-  :straight nil
-  :config
-  ;;(setq savehist-additional-variables '(vertico-sort-function
-  ;;                                      vertico-recency-type))
-  (savehist-mode 1))
-#+END_SRC
-
-** which-key
-For observability into key combinations
-#+BEGIN_SRC emacs-lisp
-(use-package which-key
-  :config
-  (which-key-mode))
-#+END_SRC
-
-** Remove the menu bar from the top of emacs
-#+BEGIN_SRC emacs-lisp
-(use-package menu-bar
-  :straight (:type built-in)
-  :config
-  (menu-bar-mode -1))
-#+END_SRC
-
-** Helpful for visibility into variables and function documentations
-#+BEGIN_SRC emacs-lisp
-(use-package helpful
-  :bind (("C-h f" . #'helpful-callable)
-         ("C-h v" . #'helpful-variable)
-         ("C-h k" . #'helpful-key)))
-#+END_SRC
-
-** linum-relative.el
+*** linum-relative.el
 Relative line numbers don't seem to work at present, fix.
 #+BEGIN_SRC emacs-lisp
 (use-package display-line-numbers
@@ -183,7 +142,27 @@ Relative line numbers don't seem to work at present, fix.
   )
 #+END_SRC
 
-** consult.el
+*** savehist.el
+Enable persistent history?
+#+BEGIN_SRC emacs-lisp
+(use-package savehist
+  :straight nil
+  :config
+  ;;(setq savehist-additional-variables '(vertico-sort-function
+  ;;                                      vertico-recency-type))
+  (savehist-mode 1))
+#+END_SRC
+
+** Observability, Introspection, and Search
+*** which-key.el
+For observability into key combinations
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :config
+  (which-key-mode))
+#+END_SRC
+
+*** consult.el
 This is used for searching
 #+BEGIN_SRC emacs-lisp
 (use-package consult
@@ -199,12 +178,12 @@ This is used for searching
   (consult-find-command 'rg)
   (consult-line-point-placement #'word-begin)
   ;; Integrate with vertico
-  (consult-project-root-function #'projectile-project-root)
+  (consult-project-root-function #'projectile-project-root))
   ;; Determine what these are for and if they will be needed
-  (xref-show-xrefs-function #'consul-xref)
-  (xref-show-definitions-function #'consul-xref)
-  (xref-prompt-for-identifier
-   '(not xref-find-definitions xref-find-definitions-other-window xref-find-references)))
+  ;;(xref-show-xrefs-function #'consul-xref)
+  ;;(xref-show-definitions-function #'consul-xref)
+  ;;(xref-prompt-for-identifier
+  ;; '(not xref-find-definitions xref-find-definitions-other-window xref-find-references)))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -213,7 +192,36 @@ This is used for searching
   :after consult)
 #+END_SRC
 
-** Key bindings
+*** helpful.el
+Observability into variables, functions, and keys
+#+BEGIN_SRC emacs-lisp
+(use-package helpful
+  :bind (("C-h f" . #'helpful-callable)
+         ("C-h v" . #'helpful-variable)
+         ("C-h k" . #'helpful-key)))
+#+END_SRC
+** Configure
+*** Remove the menu bar from the top of emacs
+#+BEGIN_SRC emacs-lisp
+(use-package menu-bar
+  :straight (:type built-in)
+  :config
+  (menu-bar-mode -1))
+#+END_SRC
+
+*** Minibuffer to use orderless and vertico
+Minibuffer is a built-in package so :straight nil otherwise it will try to pull minibuffer.el from repos.
+#+BEGIN_SRC emacs-lisp
+(use-package minibuffer
+  :straight (:type built-in)
+  :after (orderless vertico)
+  :custom
+  (completion-styles '(orderless))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles . (partial-completion))))))
+#+END_SRC
+
+** Keymaps
 Configure C-k to be a prefix key
 #+BEGIN_SRC emacs-lisp
 ;; Create a new keymap
@@ -224,7 +232,7 @@ Configure C-k to be a prefix key
   (bind-key "C-b" buffers-keymap))
 #+END_SRC
 
-*** Configure the buffers-keymap
+*** buffers-keymap
 #+BEGIN_SRC emacs-lisp
 ;; Group together keybindings for that keymap in a meta-package (virtual package)
 (use-package meta-buffers-keymap
