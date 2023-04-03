@@ -27,12 +27,19 @@ It aims to use they emacs keybindings style, with keymaps designed for aesthetic
     - [[#which-keyel][which-key.el]]
     - [[#consultel][consult.el]]
     - [[#helpfulel][helpful.el]]
-  - [[#configure][Configure]]
-    - [[#remove-the-menu-bar-from-the-top-of-emacs][Remove the menu bar from the top of emacs]]
-    - [[#minibuffer-to-use-orderless-and-vertico][Minibuffer to use orderless and vertico]]
+  - [[#languages][Languages]]
+    - [[#lsp][LSP]]
+      - [[#lsp-modeel][lsp-mode.el]]
+      - [[#lsp-uiel][lsp-ui.el]]
+      - [[#consult-lspel][consult-lsp.el]]
+    - [[#rust][Rust]]
+      - [[#rust-modeel][rust-mode.el]]
   - [[#keymaps][Keymaps]]
     - [[#buffers-keymap][buffers-keymap]]
+    - [[#search-keymap][search-keymap]]
   - [[#miscellaneous][Miscellaneous]]
+    - [[#remove-the-menu-bar-from-the-top-of-emacs][Remove the menu bar from the top of emacs]]
+    - [[#minibuffer-to-use-orderless-and-vertico][Minibuffer to use orderless and vertico]]
     - [[#org-make-tocel][org-make-toc.el]]
 :END:
 
@@ -200,7 +207,82 @@ Observability into variables, functions, and keys
          ("C-h v" . #'helpful-variable)
          ("C-h k" . #'helpful-key)))
 #+END_SRC
-** Configure
+
+** Languages
+*** LSP
+**** lsp-mode.el
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-mode
+  :hook (rust-mode . lsp)
+  :commands lsp
+  :custom
+  (lsp-rust-server 'rust-analyzer))
+#+END_SRC
+
+**** lsp-ui.el
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-ui
+  :commands lsp-ui-mode)
+#+END_SRC
+
+**** consult-lsp.el
+#+BEGIN_SRC emacs-lisp
+(use-package consult-lsp
+  :commands consult-lsp-symbols)
+#+END_SRC
+
+*** Rust
+**** rust-mode.el
+#+BEGIN_SRC emacs-lisp
+(use-package rust-mode
+  :hook (rust-mode . (lambda ()
+                       (setq-local lsp-ui-doc-enable t
+                                   lsp-ui-doc-position 'at-point
+                                   lsp-ui-doc-header t
+                                   lsp-ui-doc-border (face-foreground 'default)
+                                   lsp-ui-sideline-enable nil))))
+#+END_SRC
+
+** Keymaps
+Configure C-k to be a prefix key
+#+BEGIN_SRC emacs-lisp
+;; Create a new keymap
+(use-package bind-key
+  :after simple
+  :config
+  (defvar buffers-keymap (make-sparse-keymap))
+  (unbind-key "C-b")
+  (bind-key "C-b" buffers-keymap)
+  (defvar search-keymap (make-sparse-keymap))
+  (unbind-key "C-s")
+  (bind-key "C-s" search-keymap))
+#+END_SRC
+
+*** buffers-keymap
+#+BEGIN_SRC emacs-lisp
+;; Group together keybindings for that keymap in a meta-package (virtual package)
+(use-package meta-buffers-keymap
+  :straight (:type built-in)
+  :after bind-key
+  :bind (:map buffers-keymap
+              ("k" . kill-current-buffer)
+              ("b" . consult-buffer)
+              ("s" . consult-line)))
+#+END_SRC
+
+*** search-keymap
+#+BEGIN_SRC emacs-lisp
+(use-package meta-search-keymap
+  :straight (:type built-in)
+  :after bind-key
+  :bind (:map search-keymap
+              ("s" . consult-find)
+              ("R" . consult-recent-file)
+              ("r" . consult-ripgrep)
+              ("p" . consult-projectile-find-file)))
+#+END_SRC
+
+** Miscellaneous
 *** Remove the menu bar from the top of emacs
 #+BEGIN_SRC emacs-lisp
 (use-package menu-bar
@@ -221,31 +303,6 @@ Minibuffer is a built-in package so :straight nil otherwise it will try to pull 
   (completion-category-overrides '((file (styles . (partial-completion))))))
 #+END_SRC
 
-** Keymaps
-Configure C-k to be a prefix key
-#+BEGIN_SRC emacs-lisp
-;; Create a new keymap
-(use-package bind-key
-  :after simple
-  :config
-  (defvar buffers-keymap (make-sparse-keymap))
-  (bind-key "C-b" buffers-keymap))
-#+END_SRC
-
-*** buffers-keymap
-#+BEGIN_SRC emacs-lisp
-;; Group together keybindings for that keymap in a meta-package (virtual package)
-(use-package meta-buffers-keymap
-  :straight (:type built-in)
-  :after bind-key
-  :bind (:map buffers-keymap
-              ("k" . kill-current-buffer)
-              ("b" . consult-buffer)
-              ("s" . consult-line)
-              ("p" . consult-projectile-find-file)))
-#+END_SRC
-
-** Miscellaneous
 *** org-make-toc.el
 For a table of contents in the github README. Org mode is already loaded through (org-babble-load-file "README.org") by init.el, this means that we need to use the provided version of org mode or there will be a version mismatch.
 #+BEGIN_SRC emacs-lisp
