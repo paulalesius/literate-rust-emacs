@@ -6,9 +6,7 @@
 :PROPERTIES:
 :TOC:   :include all
 :END:
-This is my personal literate emacs configuration which aims to become a dank Rust IDE configuration. This is my first attempt at creating an Emacs configuration form scratch. <br />
-
-It aims to use the Emacs keybinding style with keymaps designed for aesthetics.
+This is my personal literate emacs configuration which aims to become a dank Rust IDE configuration. This is my first attempt at creating an Emacs configuration form scratch. It aims to use the Emacs keybinding style with keymaps designed for aesthetics.
 
 :CONTENTS:
 - [[#introduction][Introduction]]
